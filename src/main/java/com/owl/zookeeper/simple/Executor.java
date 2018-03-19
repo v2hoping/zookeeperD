@@ -28,12 +28,12 @@ public class Executor implements Watcher, Runnable, DataMonitor.DataMonitorListe
                     String exec[]) throws KeeperException, IOException {
         this.filename = filename;
         this.exec = exec;
-        zk = new ZooKeeper(hostPort, 3000, this);
+        zk = new ZooKeeper(hostPort, 30000, this);
         dm = new DataMonitor(zk, znode, null, this);
     }
 
     /**
-     * @param args a
+     * @param args 72.16.120.***:16300,172.16.120.***:16300,172.16.120.***:16300 /whp F:\test1\log.txt notepad.exe
      */
     public static void main(String[] args) {
         if (args.length < 4) {
@@ -104,6 +104,8 @@ public class Executor implements Watcher, Runnable, DataMonitor.DataMonitorListe
     }
 
     public void exists(byte[] data) {
+        //若数据不存在，进程存在，则杀死子进程。
+        //若数据存在，进程存在，则重新启动子进程，并记录文件数据变动。
         if (data == null) {
             if (child != null) {
                 System.out.println("Killing process");
