@@ -38,6 +38,7 @@ public class WatcherBack implements Watcher, AsyncCallback.StatCallback, Runnabl
     public static void main(String[] args) {
         WatcherBack watcherBack = new WatcherBack("/whp");
         watcherBack.run();
+        watcherBack.printlnStr();
     }
 
     public void process(WatchedEvent event) {
@@ -49,8 +50,8 @@ public class WatcherBack implements Watcher, AsyncCallback.StatCallback, Runnabl
                     break;
                 case Expired:
                     dead = true;
-                    synchronized (this) {
-                        notifyAll();
+                    synchronized (o) {
+                        o.notifyAll();
                     }
                     break;
             }
@@ -98,14 +99,23 @@ public class WatcherBack implements Watcher, AsyncCallback.StatCallback, Runnabl
         }
     }
 
+    private final Object o = new Object();
+
     public void run() {
         try {
-            synchronized (this) {
+            synchronized (o) {
                 while (!dead) {
-                    wait();
+                    o.wait();
+                    System.out.println("输出字符串");
                 }
             }
         } catch (InterruptedException e) {
+        }
+    }
+
+    public void printlnStr() {
+        synchronized (o) {
+            System.out.println("输出A");
         }
     }
 }
